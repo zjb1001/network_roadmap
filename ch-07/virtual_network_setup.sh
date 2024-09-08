@@ -59,3 +59,5 @@ echo "veth1 <-> veth0 <-> br0 <-> tap0"
 ip link show
 
 echo "Setup complete. You can now use these interfaces for further networking experiments."
+
+echo "For a Python-based implementation of this setup, please refer to virtual_network_simulator.py"
