@@ -1,65 +1,82 @@
-import subprocess
-import time
+import os
+from pyroute2 import IPRoute, IPDB, NetNS
+from pyroute2.netlink.exceptions import NetlinkError
 
-def run_command(cmd):
+def create_bridge(ip, name):
     try:
-        result = subprocess.run(cmd, check=True, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
-        return result.stdout
-    except subprocess.CalledProcessError as e:
-        print(f"Error executing command: {e}")
-        return None
+        ip.link('add', ifname=name, kind='bridge')
+        with IPDB() as ipdb:
+            with ipdb.interfaces[name] as bridge:
+                bridge.up()
+        print(f"Created bridge: {name}")
+    except NetlinkError as e:
+        print(f"Error creating bridge {name}: {e}")
 
-def create_bridge(name):
-    print(f"Creating bridge {name}")
-    run_command(f"sudo ip link add name {name} type bridge")
-    run_command(f"sudo ip link set {name} up")
+def create_veth_pair(ip, veth1, veth2):
+    try:
+        ip.link('add', ifname=veth1, peer=veth2, kind='veth')
+        with IPDB() as ipdb:
+            with ipdb.interfaces[veth1] as v1, ipdb.interfaces[veth2] as v2:
+                v1.up()
+                v2.up()
+        print(f"Created veth pair: {veth1} <-> {veth2}")
+    except NetlinkError as e:
+        print(f"Error creating veth pair {veth1} <-> {veth2}: {e}")
 
-def create_veth_pair(veth1, veth2):
-    print(f"Creating veth pair: {veth1} <-> {veth2}")
-    run_command(f"sudo ip link add {veth1} type veth peer name {veth2}")
-    run_command(f"sudo ip link set {veth1} up")
-    run_command(f"sudo ip link set {veth2} up")
+def add_to_bridge(ip, interface, bridge):
+    try:
+        bridge_idx = ip.link_lookup(ifname=bridge)[0]
+        intf_idx = ip.link_lookup(ifname=interface)[0]
+        ip.link('set', index=intf_idx, master=bridge_idx)
+        print(f"Added {interface} to bridge {bridge}")
+    except NetlinkError as e:
+        print(f"Error adding {interface} to bridge {bridge}: {e}")
 
-def add_to_bridge(interface, bridge):
-    print(f"Adding {interface} to bridge {bridge}")
-    run_command(f"sudo ip link set {interface} master {bridge}")
-
-def create_tuntap(name):
-    print(f"Creating TUN/TAP device: {name}")
-    run_command(f"sudo ip tuntap add dev {name} mode tap")
-    run_command(f"sudo ip link set {name} up")
+def create_tuntap(ip, name):
+    try:
+        ip.link('add', ifname=name, kind='tuntap', mode='tap')
+        with IPDB() as ipdb:
+            with ipdb.interfaces[name] as tap:
+                tap.up()
+        print(f"Created TUN/TAP device: {name}")
+    except NetlinkError as e:
+        print(f"Error creating TUN/TAP device {name}: {e}")
 
 def setup_virtual_network():
-    # Create a bridge
-    create_bridge("br0")
+    with IPRoute() as ip:
+        # Create a bridge
+        create_bridge(ip, "br0")
 
-    # Create veth pair
-    create_veth_pair("veth0", "veth1")
+        # Create veth pair
+        create_veth_pair(ip, "veth0", "veth1")
 
-    # Add one end of veth pair to bridge
-    add_to_bridge("veth0", "br0")
+        # Add one end of veth pair to bridge
+        add_to_bridge(ip, "veth0", "br0")
 
-    # Create a TUN/TAP device
-    create_tuntap("tap0")
+        # Create a TUN/TAP device
+        create_tuntap(ip, "tap0")
 
-    # Add TUN/TAP device to bridge
-    add_to_bridge("tap0", "br0")
+        # Add TUN/TAP device to bridge
+        add_to_bridge(ip, "tap0", "br0")
 
 def display_network_info():
     print("\nNetwork Interface Information:")
-    print(run_command("ip link show"))
+    with IPRoute() as ip:
+        links = ip.get_links()
+        for link in links:
+            print(f"Interface: {link.get_attr('IFLA_IFNAME')}, State: {'UP' if link['state'] == 1 else 'DOWN'}")
 
 def main():
+    if os.geteuid() != 0:
+        print("This script must be run as root. Please use sudo.")
+        return
+
     print("Setting up virtual network...")
     setup_virtual_network()
-    time.sleep(2)  # Give some time for network setup
     display_network_info()
     print("\nVirtual network setup complete. Network topology:")
     print("veth1 <-> veth0 <-> br0 <-> tap0")
     print("\nYou can now use these interfaces for further networking experiments.")
 
 if __name__ == "__main__":
-    if subprocess.geteuid() != 0:
-        print("This script must be run as root. Please use sudo.")
-    else:
-        main()
+    main()
