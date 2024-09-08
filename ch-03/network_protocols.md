@@ -1,6 +1,6 @@
 # Chapter 3: Network Protocols
 
-This chapter covers fundamental network protocols essential for understanding the Linux network stack.
+This chapter covers fundamental network protocols essential for understanding the Linux network stack. We'll explore each protocol with practical examples and packet capture analysis.
 
 ## 1. Ethernet and ARP (Address Resolution Protocol)
 
@@ -18,6 +18,8 @@ ARP is used to map IP addresses to MAC addresses in a local network.
 Key concepts:
 - ARP cache
 - ARP request and reply messages
+
+Practical Example: See `ethernet_arp_analysis.sh` for Ethernet and ARP packet capture and analysis.
 
 ## 2. IPv4 and IPv6
 
@@ -37,6 +39,8 @@ Key concepts:
 - Simplified header structure
 - Built-in security features
 
+Practical Example: See `ip_packet_analyzer.py` for IPv4 and IPv6 packet capture and analysis.
+
 ## 3. TCP (Transmission Control Protocol) and UDP (User Datagram Protocol)
 
 ### 3.1 TCP
@@ -55,6 +59,8 @@ Key concepts:
 - No guarantee of delivery, ordering, or duplicate protection
 - Suitable for real-time applications
 
+Practical Example: See `tcp_udp_analyzer.py` for TCP and UDP packet capture and analysis.
+
 ## 4. ICMP (Internet Control Message Protocol)
 
 ICMP is used by network devices to send error messages and operational information.
@@ -62,6 +68,8 @@ ICMP is used by network devices to send error messages and operational informati
 Key concepts:
 - ICMP message types (e.g., Echo Request/Reply, Destination Unreachable)
 - Ping and Traceroute utilities
+
+Practical Example: See `icmp_analyzer.py` for ICMP packet capture and analysis.
 
 ## 5. Common Application Layer Protocols
 
@@ -74,12 +82,14 @@ Used for transferring files between clients and servers on a network.
 ### 5.3 SSH (Secure Shell)
 A cryptographic network protocol for secure data communication, remote command-line login, remote command execution, and other secure network services.
 
+Practical Example: See `application_layer_analyzer.py` for HTTP, FTP, and SSH packet capture and analysis.
+
 ## Practical Exercises
 
-1. Ethernet and ARP analysis
-2. IPv4 and IPv6 packet examination
-3. TCP and UDP socket programming
-4. ICMP ping and traceroute implementation
-5. Simple HTTP server and client
+1. Run `ethernet_arp_analysis.sh` to capture and analyze Ethernet and ARP packets.
+2. Use `ip_packet_analyzer.py` to examine IPv4 and IPv6 packets.
+3. Analyze TCP and UDP traffic using `tcp_udp_analyzer.py`.
+4. Capture and examine ICMP packets with `icmp_analyzer.py`.
+5. Study application layer protocols using `application_layer_analyzer.py`.
 
-(See accompanying scripts and programs for hands-on practice)
+These exercises will provide hands-on experience with network protocols and deepen your understanding of their purposes and behaviors.

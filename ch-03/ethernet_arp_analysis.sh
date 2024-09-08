@@ -32,3 +32,25 @@ run_command "sudo arp -d 192.168.1.100"
 run_command "sudo ip -s -s neigh flush all"
 
 echo "Ethernet and ARP analysis completed."
+#!/bin/bash
+
+# Ethernet and ARP Analysis Script
+
+# Capture Ethernet frames
+echo "Capturing Ethernet frames..."
+sudo tcpdump -i eth0 -nn -c 10 -e
+
+# Capture ARP packets
+echo "Capturing ARP packets..."
+sudo tcpdump -i eth0 -nn arp -c 5
+
+# Display ARP cache
+echo "Current ARP cache:"
+arp -e
+
+# Flush ARP cache and observe ARP requests
+echo "Flushing ARP cache and observing new ARP requests..."
+sudo ip -s -s neigh flush all
+sudo tcpdump -i eth0 -nn arp -c 5
+
+echo "Ethernet and ARP analysis complete."
