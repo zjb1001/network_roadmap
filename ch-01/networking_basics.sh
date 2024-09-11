@@ -8,23 +8,28 @@ echo "Pinging google.com:"
 ping -c 4 google.com
 
 # 2. Traceroute
-echo -e "\nTraceroute to google.com:"
+echo
+echo "Traceroute to google.com:"
 traceroute google.com
 
 # 3. Netstat
-echo -e "\nNetstat - Active Internet connections:"
+echo
+echo "Netstat - Active Internet connections:"
 netstat -tuln
 
 # 4. SS (Socket Statistics)
-echo -e "\nSS - Socket Statistics:"
+echo
+echo "SS - Socket Statistics:"
 ss -tuln
 
 # 5. IP command
-echo -e "\nIP Address information:"
+echo
+echo "IP Address information:"
 ip addr show
 
 # 6. Route
-echo -e "\nRouting Table:"
+echo
+echo "Routing Table:"
 route -n
 
 echo "Basic networking commands test completed."
