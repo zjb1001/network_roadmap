@@ -1,9 +1,5 @@
 #!/bin/bash
 
-# Install necessary packages
-sudo apt-get update
-sudo apt-get install -y gcc tcpdump netcat-openbsd
-
 # Compile the C program
 echo "Compiling simple_socket.c..."
 gcc -o simple_socket simple_socket.c
