@@ -61,19 +61,39 @@ for sent, received in result:
     print_with_line_number(f"Target IP: {received.psrc}")
     print_with_line_number(f"Target MAC: {received.hwsrc}")
 
+# 扫描当前IP段内的所有IP
+print_with_line_number("\nScanning all IPs in the current subnet:")
+subnet = ".".join(my_ip.split(".")[:3] + ["0/24"])
+ans, unans = srp(Ether(dst="ff:ff:ff:ff:ff:ff")/ARP(pdst=subnet), timeout=2, iface=interface, verbose=0)
+
+active_ips = []
+for sent, received in ans:
+    ip = received.psrc
+    mac = received.hwsrc
+    print_with_line_number(f"IP: {ip}, MAC: {mac}")
+    active_ips.append(ip)
+
 # 添加非路由节点的ARP请求
 non_router_ip = ".".join(my_ip.split(".")[:3] + ["100"])  # 假设 .100 不是路由器
 arp_request_non_router = ARP(pdst=non_router_ip)
 packet_non_router = ether_frame/arp_request_non_router
 result_non_router = srp(packet_non_router, timeout=3, verbose=0, iface=interface)[0]
 
+print_with_line_number("\nNon-router ARP request result:")
 if result_non_router:
-    print_with_line_number("\nNon-router ARP request result:")
     for sent, received in result_non_router:
         print_with_line_number(f"Non-router IP: {received.psrc}")
         print_with_line_number(f"Non-router MAC: {received.hwsrc}")
+    if non_router_ip in active_ips:
+        print_with_line_number(f"Verification: Non-router IP {non_router_ip} is active in the subnet scan.")
+    else:
+        print_with_line_number(f"Verification: Non-router IP {non_router_ip} was not found in the subnet scan. This might be due to firewall settings or the host being offline during the scan.")
 else:
-    print_with_line_number(f"\nNo response from non-router IP: {non_router_ip}")
+    print_with_line_number(f"No response from non-router IP: {non_router_ip}")
+    if non_router_ip in active_ips:
+        print_with_line_number(f"Verification: Although no response was received, IP {non_router_ip} was found active in the subnet scan. This might indicate the host is configured to ignore ARP requests.")
+    else:
+        print_with_line_number(f"Verification: IP {non_router_ip} was not found in the subnet scan, confirming it's likely offline or non-existent.")
 
 # 监听ARP流量
 def arp_monitor_callback(pkt):
