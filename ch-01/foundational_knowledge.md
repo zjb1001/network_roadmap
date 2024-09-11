@@ -2,10 +2,27 @@
 
 Before proceeding, ensure you have the necessary packages installed:
 
+## Required Packages
+
+To follow along with the examples and exercises in this chapter, you'll need the following packages:
+
+- gcc: GNU Compiler Collection
+- make: GNU make utility
+- iproute2: IP routing utilities
+- iputils-ping: Tools to test the reachability of network hosts
+- traceroute: Traces the route taken by packets over an IP network
+- net-tools: NET-3 networking toolkit
+- tcpdump: Command-line packet analyzer
+- netcat-openbsd: TCP/IP swiss army knife
+
+You can install these packages on a Debian-based system (like Ubuntu) using the following commands:
+
 ```bash
 sudo apt-get update
-sudo apt-get install -y gcc make
+sudo apt-get install -y gcc make iproute2 iputils-ping traceroute net-tools tcpdump netcat-openbsd
 ```
+
+For other Linux distributions, use the appropriate package manager and package names.
 
 
 ## 1. Basic Networking Concepts
