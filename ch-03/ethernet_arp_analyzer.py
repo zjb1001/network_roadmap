@@ -1,5 +1,10 @@
 import subprocess
 from scapy.all import *
+from enum import Enum
+
+class ARPOperation(Enum):
+    who_has = 1
+    is_at = 2
 
 def get_interface():
     # 获取默认网络接口
@@ -53,7 +58,7 @@ for sent, received in result:
 # 监听ARP流量
 def arp_monitor_callback(pkt):
     if ARP in pkt and pkt[ARP].op in (1,2): #who-has or is-at
-        return f"ARP {pkt[ARP].op} {pkt[ARP].hwsrc} {pkt[ARP].psrc}"
+        return f"ARP {ARPOperation(pkt[ARP].op).name} {pkt[ARP].hwsrc} {pkt[ARP].psrc}"
 
 print("\nMonitoring ARP traffic (CTRL+C to stop):")
 sniff(prn=arp_monitor_callback, filter="arp", store=0, count=10, iface=interface)
