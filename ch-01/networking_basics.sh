@@ -1,5 +1,9 @@
 #!/bin/bash
 
+# Install necessary packages
+sudo apt-get update
+sudo apt-get install -y iproute2 iputils-ping traceroute net-tools
+
 # Basic Networking Commands
 echo "Testing basic networking commands..."
 

@@ -1,4 +1,12 @@
-# Foundational Knowledge for Linux Network Stack
+# ch-01 Foundational Knowledge for Linux Network Stack
+
+Before proceeding, ensure you have the necessary packages installed:
+
+```bash
+sudo apt-get update
+sudo apt-get install -y gcc make
+```
+
 
 ## 1. Basic Networking Concepts
 
