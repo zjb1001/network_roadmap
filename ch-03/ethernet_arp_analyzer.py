@@ -55,10 +55,27 @@ for sent, received in result:
     print(f"Target IP: {received.psrc}")
     print(f"Target MAC: {received.hwsrc}")
 
+# 添加非路由节点的ARP请求
+non_router_ip = ".".join(my_ip.split(".")[:3] + ["100"])  # 假设 .100 不是路由器
+arp_request_non_router = ARP(pdst=non_router_ip)
+packet_non_router = ether_frame/arp_request_non_router
+result_non_router = srp(packet_non_router, timeout=3, verbose=0, iface=interface)[0]
+
+if result_non_router:
+    print("\nNon-router ARP request result:")
+    for sent, received in result_non_router:
+        print(f"Non-router IP: {received.psrc}")
+        print(f"Non-router MAC: {received.hwsrc}")
+else:
+    print(f"\nNo response from non-router IP: {non_router_ip}")
+
 # 监听ARP流量
 def arp_monitor_callback(pkt):
-    if ARP in pkt and pkt[ARP].op in (1,2): #who-has or is-at
-        return f"ARP {ARPOperation(pkt[ARP].op).name} {pkt[ARP].hwsrc} {pkt[ARP].psrc}"
+    if ARP in pkt:
+        if pkt[ARP].op == 1:  # ARP request
+            return f"ARP Request: Who has {pkt[ARP].pdst}? Tell {pkt[ARP].psrc}"
+        elif pkt[ARP].op == 2:  # ARP reply
+            return f"ARP Reply: {pkt[ARP].psrc} is at {pkt[ARP].hwsrc}"
 
 print("\nMonitoring ARP traffic (CTRL+C to stop):")
 sniff(prn=arp_monitor_callback, filter="arp", store=0, count=10, iface=interface)
